@@ -15,13 +15,15 @@ namespace BIO_API_DATA.API_Client
 		private readonly ILogger _logger;
 		private readonly IRestClientFactory _restClientFactory;
 		private readonly string _baseUrl;
+		private readonly IRestClient _restClient;
 
-		public TopLevelCustomersClient(string baseUrl, ILogger logger, IRestClientFactory restClientFactory)
+		public TopLevelCustomersClient(string baseUrl, ILogger logger, IRestClientFactory restClientFactory,IRestClient iRestClient)
 		{
 			_baseUrl = baseUrl;
 			_logger = logger;
 			_restClientFactory = restClientFactory;
-		}
+			_restClient = iRestClient;
+        }
 
 		public async Task<List<string>> GetAllCustomers()
 		{
@@ -34,10 +36,9 @@ namespace BIO_API_DATA.API_Client
 
 				while (!string.IsNullOrEmpty(url))
 				{
-					var client = _restClientFactory.CreateClient(url);
-					var request = new RestRequest();
+					var request = new RestRequest(url);
 
-					var response = await client.GetAsync(request);
+					var response = await _restClient.GetAsync(request);
 
 					if (!response.IsSuccessful)
 					{
