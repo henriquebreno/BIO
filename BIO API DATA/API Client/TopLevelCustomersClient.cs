@@ -1,4 +1,5 @@
 ﻿using BIO_API_DATA.Model;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using RestSharp;
 using Serilog;
@@ -12,14 +13,15 @@ namespace BIO_API_DATA.API_Client
 {
 	public partial class TopLevelCustomersClient : ITopLevelCustomersClient
 	{
+		private readonly IConfiguration _configuration;
 		private readonly ILogger _logger;
 		private readonly IRestClientFactory _restClientFactory;
 		private readonly string _baseUrl;
 		private readonly IRestClient _restClient;
 
-		public TopLevelCustomersClient(string baseUrl, ILogger logger, IRestClientFactory restClientFactory,IRestClient iRestClient)
+		public TopLevelCustomersClient(IConfiguration configuration, ILogger logger, IRestClientFactory restClientFactory,IRestClient iRestClient)
 		{
-			_baseUrl = baseUrl;
+			_baseUrl = configuration.GetValue<string>("ApiSettings:TopLevelCustomersClient");
 			_logger = logger;
 			_restClientFactory = restClientFactory;
 			_restClient = iRestClient;

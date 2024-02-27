@@ -1,4 +1,5 @@
-﻿using RestSharp;
+﻿using Microsoft.Extensions.Configuration;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,12 @@ namespace BIO_API_DATA.API_Client
 {
 	public class MyRestClientFactory : IRestClientFactory
 	{
+		private readonly IConfiguration _configuration;
 		private readonly string _baseUrl;
 
-		public MyRestClientFactory(string baseUrl)
+		public MyRestClientFactory(IConfiguration configuration)
 		{
-			_baseUrl = baseUrl;
+			_baseUrl = configuration.GetValue<string>("ApiSettings:MyRestClientFactory");
 		}
 
 		public RestClient CreateClient(string url)

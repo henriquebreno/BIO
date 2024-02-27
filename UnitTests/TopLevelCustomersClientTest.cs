@@ -1,6 +1,7 @@
 using BIO_API_DATA.API_Client;
 using BIO_API_DATA.Model;
 using Castle.Core.Resource;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using Newtonsoft.Json;
 using RestSharp;
@@ -20,19 +21,30 @@ namespace UnitTests
         private readonly string BaseUrl = "https://bioapi";
         private Mock<ILogger> _ILogger;
         private Mock<IRestClientFactory> _RestClientFactory;
+        private IConfiguration configuration;
 
-        public TopLevelCustomersClientTest()
+
+		public TopLevelCustomersClientTest()
         {
             _RestClientFactory = new Mock<IRestClientFactory>();
-            _restClient = new Mock<IRestClient>();          
+            _restClient = new Mock<IRestClient>();
             _ILogger = new Mock<ILogger>();
-        }
+			
+            var inMemorySettings = new Dictionary<string, string> {
+			{"APITESTKEY", "test"}};
+
+			configuration = new ConfigurationBuilder()
+			.AddInMemoryCollection(inMemorySettings)
+			.Build();
+
+		}
         [Fact]
         public async Task GetAllCustomers_Success_ReturnsCustomerIds()
         {
 
-            //Arrange
-            var clientResult = new RestResponse
+			
+			//Arrange
+			var clientResult = new RestResponse
             {
                 Content = $"{{\"TopLevelCustomerIds\":[\"customer1\",\"customer2\",\"customer3\"],\"Next\":\"\",\"Prev\":\"\"}}",
                 StatusCode = System.Net.HttpStatusCode.OK,
@@ -40,13 +52,13 @@ namespace UnitTests
                 IsSuccessStatusCode = true,
                 ResponseStatus = ResponseStatus.Completed
             };
-            
+
 
             var customerResponse = new List<string>
             {
                 { "customer1"},
                 { "customer2"},
-                { "customer3"},             
+                { "customer3"},
             };
 
 
@@ -55,7 +67,7 @@ namespace UnitTests
 
 
 
-            var client = new TopLevelCustomersClient(BaseUrl, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
+            var client = new TopLevelCustomersClient(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
 
             //Act
             var result = await client.GetAllCustomers();
@@ -64,7 +76,7 @@ namespace UnitTests
             Assert.NotNull(result);
             Assert.Equal(3, result.Count);
             Assert.True(customerResponse.SequenceEqual(result));
-            
+
         }
 
         [Fact]
@@ -99,17 +111,17 @@ namespace UnitTests
             };
 
             var customerResponse = new List<string>
-            {
-                { "customer1"},
-                { "customer2"},
-                { "customer3"},
-                { "customer4"},
-                { "customer5"},
-                { "customer6"},
-                { "customer7"},
-                { "customer8"},
-                { "customer9"}
-            };
+                {
+                    { "customer1"},
+                    { "customer2"},
+                    { "customer3"},
+                    { "customer4"},
+                    { "customer5"},
+                    { "customer6"},
+                    { "customer7"},
+                    { "customer8"},
+                    { "customer9"}
+                };
 
 
             _restClient.SetupSequence(s => s.ExecuteAsync(It.IsAny<RestRequest>(), It.IsAny<CancellationToken>()))
@@ -119,7 +131,7 @@ namespace UnitTests
 
 
 
-            var client = new TopLevelCustomersClient(BaseUrl, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
+            var client = new TopLevelCustomersClient(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
 
             //Act
             var result = await client.GetAllCustomers();
@@ -140,7 +152,7 @@ namespace UnitTests
             _restClient.Setup(s => s.ExecuteAsync(It.IsAny<RestRequest>(), It.IsAny<CancellationToken>()))
                         .ReturnsAsync(new RestResponse { IsSuccessStatusCode = false, StatusDescription = "Internal Server Error" });
 
-            var client = new TopLevelCustomersClient(BaseUrl, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
+            var client = new TopLevelCustomersClient(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
 
             //Act
             var result = await client.GetAllCustomers();
@@ -150,6 +162,7 @@ namespace UnitTests
             Assert.Empty(result);
         }
 
-    }
 
+
+    }
 }
