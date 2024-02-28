@@ -1,5 +1,7 @@
 ﻿using BIO_API_DATA.API_Client;
+using BIO_API_DATA.Data;
 using BIO_API_DATA.Model;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -28,13 +30,17 @@ var host = Host.CreateDefaultBuilder()
 		services.AddTransient<IRestClientFactory, MyRestClientFactory>();
 		services.AddTransient<IRestClient, RestClient>();
 		services.AddTransient<ITopLevelCustomersClient, TopLevelCustomersClient>();
-		services.AddTransient<IGasMeteringPointClient, GasMeteringPointClient>();
+		services.AddTransient<IGasMeteringPointCustomerListClient, GasMeteringPointCustomerListClient>();
 		services.AddTransient<ILogger>(provider => Log.Logger);
+		services.AddDbContext<BioDataContext>(options =>
+		{
+			options.UseSqlServer(configuration.GetConnectionString("Default"));
+		});
 
 
 	}).UseSerilog()
 	.Build();
 
-var svc = ActivatorUtilities.CreateInstance<GasMeteringPointClient>(host.Services);
+var svc = ActivatorUtilities.CreateInstance<GasMeteringPointCustomerListClient>(host.Services);
 
 svc.GetGasmetringPointCustomerassociation();
