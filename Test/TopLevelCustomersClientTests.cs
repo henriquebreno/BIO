@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using RestSharp;
 using Serilog;
 using System.Net;
-using static BIO_API_DATA.API_Client.TopLevelCustomersClient;
+using static BIO_API_DATA.API_Client.TopLevelCustomersClientList;
 
 namespace Test
 {

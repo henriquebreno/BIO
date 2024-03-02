@@ -15,5 +15,7 @@ public partial class Observation
 
     public int? Position { get; set; }
 
+    public bool? Correction { get; set; }
+
     public virtual GasMeterMeasurement? GasMeterMeasurement { get; set; }
 }

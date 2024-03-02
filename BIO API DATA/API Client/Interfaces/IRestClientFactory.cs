@@ -2,7 +2,7 @@
 
 namespace BIO_API_DATA.API_Client
 {
-	public partial class TopLevelCustomersClient
+	public partial class TopLevelCustomersClientList
 	{
 		public interface IRestClientFactory
 		{

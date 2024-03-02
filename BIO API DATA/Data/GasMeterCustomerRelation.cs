@@ -7,9 +7,9 @@ public partial class GasMeterCustomerRelation
 {
     public long Id { get; set; }
 
-    public DateOnly? EffectiveStartTimeUtc { get; set; }
+    public DateTime? EffectiveStartTimeUtc { get; set; }
 
-    public DateOnly? EffectiveEndTimeUtc { get; set; }
+    public DateTime? EffectiveEndTimeUtc { get; set; }
 
     public long? CustomerId { get; set; }
 

@@ -9,9 +9,9 @@ public partial class GasMeteringPoint
 
     public long MeterId { get; set; }
 
-    public DateOnly? EffectiveStartTimeUtc { get; set; }
+    public DateTime? EffectiveStartTimeUtc { get; set; }
 
-    public DateOnly? EffectiveEndTimeUtc { get; set; }
+    public DateTime? EffectiveEndTimeUtc { get; set; }
 
     public bool? InDelivery { get; set; }
 
@@ -37,9 +37,7 @@ public partial class GasMeteringPoint
 
     public string? Source { get; set; }
 
-    public long? MeteringPointIdentification { get; set; }
-
     public virtual ICollection<GasMeterCustomerRelation> GasMeterCustomerRelations { get; set; } = new List<GasMeterCustomerRelation>();
 
-    public virtual GasMeterMeasurement? MeteringPointIdentificationNavigation { get; set; }
+    public virtual GasMeterMeasurement? GasMeterMeasurement { get; set; }
 }

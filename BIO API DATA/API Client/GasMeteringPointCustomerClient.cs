@@ -1,40 +1,43 @@
 ﻿using BIO_API_DATA.Model;
 using BIO_API_DATA.Model.GasMeterpointToCustomerModel;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using RestSharp;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace BIO_API_DATA.API_Client
 {
-	
-	public class GasMeteringPointCustomerClient
+
+	public class GasMeteringPointCustomerClient : IGasMeteringPointCustomerClient
 	{
 		private readonly ILogger _logger;
 		private readonly string _baseUrl;
 		private readonly IRestClient _restClient;
-		private readonly GasMeteringPointCustomerListClient _customerGas;
-		public GasMeteringPointCustomerClient(IConfiguration configuration, ILogger logger, IRestClient iRestClient, GasMeteringPointCustomerListClient customersClient)
-        {
+		public readonly GasMeteringPointCustomerClientList _customerGas;
+		public GasMeteringPointCustomerClient(IConfiguration configuration, ILogger logger, IRestClient iRestClient, GasMeteringPointCustomerClientList customersClient)
+		{
 			_baseUrl = configuration.GetValue<string>("ApiSettings:GasMeteringPointCustomerClient");
 			_logger = logger;
 			_restClient = iRestClient;
 			_customerGas = customersClient;
 		}
 
-		public async void GetGasCustomer()
+		public async Task<List<GasMeteringCustomerObjectModel>> GetGasCustomer()
 		{
-			var customerGasrelations = _customerGas.GetGasmetringPointCustomerassociation();
-			string url = _baseUrl;  
+			List<GasMeteringCustomerObjectModel> gasMeteringCustomerObjectModelList = new List<GasMeteringCustomerObjectModel>();
+			var customerGasrelations = _customerGas.GetGasmeteringPointCustomerassociation();
+			string url = _baseUrl;
 
 			foreach (var customer in customerGasrelations.Result)
 			{
-				foreach(var gas in customer.GasMeteringPoints)
+				foreach (var gas in customer.GasMeteringPoints)
 				{
 					url += $"/api/v1/topLevelCustomers/{customer.CustomerId}/gasMeteringPoints/{gas.Id}";
 					var request = new RestRequest(url);
@@ -45,23 +48,17 @@ namespace BIO_API_DATA.API_Client
 						throw new Exception($"Error getting gasmetringpointsCustumerRelation: {response.StatusDescription}");
 					}
 
-					_logger.Information("Response status: {StatusDescription}", response.StatusDescription);
-
 					var content = response.Content;
 
-					var responseData = JsonConvert.DeserializeObject<GasMeteringCustomerObjectModel>(content);
+					var gasMeteringCustomerObjectModel = JsonConvert.DeserializeObject<GasMeteringCustomerObjectModel>(content);
 
+					gasMeteringCustomerObjectModelList.Add(gasMeteringCustomerObjectModel);
 				}
-				
-				
+
 			}
+			return gasMeteringCustomerObjectModelList;
 		}
 
-		public void SaveGasCustomer()
-		{
-
-		}
 	}
 
-	
 }

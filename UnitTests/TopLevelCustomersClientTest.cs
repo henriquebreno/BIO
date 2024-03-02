@@ -10,7 +10,7 @@ using System;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
-using static BIO_API_DATA.API_Client.TopLevelCustomersClient;
+using static BIO_API_DATA.API_Client.TopLevelCustomersClientList;
 
 namespace UnitTests
 {
@@ -67,11 +67,11 @@ namespace UnitTests
 
 
 
-            var client = new TopLevelCustomersClient(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
+            var client = new TopLevelCustomersClientList(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
 
             //Act
-            var result = await client.GetAllCustomers();
-
+            client.GetAllCustomers();
+            var result = TopLevelCustomersClientList._allCustomerIds;
 
             Assert.NotNull(result);
             Assert.Equal(3, result.Count);
@@ -131,13 +131,14 @@ namespace UnitTests
 
 
 
-            var client = new TopLevelCustomersClient(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
+            var client = new TopLevelCustomersClientList(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
 
-            //Act
-            var result = await client.GetAllCustomers();
+			//Act
+			client.GetAllCustomers();
+			var result = TopLevelCustomersClientList._allCustomerIds;
 
 
-            Assert.NotNull(result);
+			Assert.NotNull(result);
             Assert.Equal(9, result.Count);
             Assert.True(customerResponse.SequenceEqual(result));
 
@@ -152,13 +153,14 @@ namespace UnitTests
             _restClient.Setup(s => s.ExecuteAsync(It.IsAny<RestRequest>(), It.IsAny<CancellationToken>()))
                         .ReturnsAsync(new RestResponse { IsSuccessStatusCode = false, StatusDescription = "Internal Server Error" });
 
-            var client = new TopLevelCustomersClient(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
+            var client = new TopLevelCustomersClientList(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
 
-            //Act
-            var result = await client.GetAllCustomers();
+			//Act
+			client.GetAllCustomers();
+			var result = TopLevelCustomersClientList._allCustomerIds;
 
-            // Assert
-            Assert.NotNull(result);
+			// Assert
+			Assert.NotNull(result);
             Assert.Empty(result);
         }
 

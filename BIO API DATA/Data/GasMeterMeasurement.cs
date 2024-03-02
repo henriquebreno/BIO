@@ -7,15 +7,17 @@ public partial class GasMeterMeasurement
 {
     public long Id { get; set; }
 
-    public DateOnly? Start { get; set; }
+    public DateTime? Start { get; set; }
 
-    public DateOnly? End { get; set; }
+    public DateTime? End { get; set; }
 
     public string? Resolution { get; set; }
 
     public string? Unit { get; set; }
 
-    public virtual ICollection<GasMeteringPoint> GasMeteringPoints { get; set; } = new List<GasMeteringPoint>();
+    public long? MeteringPointIdentification { get; set; }
+
+    public virtual GasMeteringPoint? MeteringPointIdentificationNavigation { get; set; }
 
     public virtual ICollection<Observation> Observations { get; set; } = new List<Observation>();
 }

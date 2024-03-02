@@ -9,18 +9,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static BIO_API_DATA.API_Client.TopLevelCustomersClient;
+using static BIO_API_DATA.API_Client.TopLevelCustomersClientList;
 
 namespace BIO_API_DATA.API_Client
 {
-	public class GasMeteringPointCustomerListClient : IGasMeteringPointCustomerListClient
+	public class GasMeteringPointCustomerClientList : IGasMeteringPointCustomerClientList
 	{
 		private readonly ILogger _logger;
 		private readonly string _baseUrl;
 		private readonly IRestClient _restClient;
-		private readonly ITopLevelCustomersClient _customersClient;
+		public readonly ITopLevelCustomersClientList _customersClient;
 
-		public GasMeteringPointCustomerListClient(IConfiguration configuration, ILogger logger, IRestClient iRestClient, ITopLevelCustomersClient customersClient)
+		public GasMeteringPointCustomerClientList(IConfiguration configuration, ILogger logger, IRestClient iRestClient, ITopLevelCustomersClientList customersClient)
 		{
 			_baseUrl = configuration.GetValue<string>("ApiSettings:GasMeteringPointClient");
 			_logger = logger;
@@ -28,15 +28,19 @@ namespace BIO_API_DATA.API_Client
 			_customersClient = customersClient;
 		}
 
-		public async Task<List<GasMeterPointCustomerModel>> GetGasmetringPointCustomerassociation()
+		public async Task<List<GasMeterPointCustomerModel>> GetGasmeteringPointCustomerassociation()
 		{
 
-			var CustomerIdList = _customersClient.GetAllCustomers();
+			_customersClient.GetAllCustomers();
+
+			var CustomerIdList = TopLevelCustomersClientList._allCustomerIds;
+
+
 			var GasMeterPointCustomerIDList = new List<GasMeterPointCustomerModel>();
 
 			string url;
 
-			foreach (var id in CustomerIdList.Result)
+			foreach (var id in CustomerIdList)
 			{
 				url = _baseUrl + $"/api/v1/topLevelCustomers/{id}/gasMeteringPoints?associationFilter=0";
 				_logger.Information("Starting at URL: {Url}", url);

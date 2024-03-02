@@ -9,9 +9,9 @@ public partial class Customer
 
     public string? CustomerNumber { get; set; }
 
-    public DateOnly? EffectiveStartTimeUtc { get; set; }
+    public DateTime? EffectiveStartTimeUtc { get; set; }
 
-    public DateOnly? EffectiveEndTimeUtc { get; set; }
+    public DateTime? EffectiveEndTimeUtc { get; set; }
 
     public string? VatIdentification { get; set; }
 

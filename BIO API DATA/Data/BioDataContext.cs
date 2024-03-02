@@ -36,17 +36,29 @@ public partial class BioDataContext : DbContext
             entity.ToTable("Customer");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.BuildingFloor).HasMaxLength(255);
+            entity.Property(e => e.BuildingNumber).HasMaxLength(255);
+            entity.Property(e => e.City).HasMaxLength(255);
+            entity.Property(e => e.Country).HasMaxLength(255);
+            entity.Property(e => e.CustomerName).HasMaxLength(255);
+            entity.Property(e => e.CustomerNumber).HasMaxLength(255);
+            entity.Property(e => e.EffectiveEndTimeUtc).HasColumnType("datetime");
+            entity.Property(e => e.EffectiveStartTimeUtc).HasColumnType("datetime");
+            entity.Property(e => e.MunicipalityCode).HasMaxLength(255);
+            entity.Property(e => e.PostalCode).HasMaxLength(255);
+            entity.Property(e => e.RoomIdentification).HasMaxLength(255);
+            entity.Property(e => e.Source).HasMaxLength(255);
+            entity.Property(e => e.StreetName).HasMaxLength(255);
+            entity.Property(e => e.VatIdentification).HasMaxLength(255);
         });
 
         modelBuilder.Entity<GasMeterCustomerRelation>(entity =>
         {
             entity.ToTable("GasMeterCustomerRelation");
 
-            entity.HasIndex(e => e.Id, "IX_GasMeterCustomerRelation").IsUnique();
-
-            entity.HasIndex(e => e.Id, "IX_GasMeterCustomerRelation_1").IsUnique();
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.EffectiveEndTimeUtc).HasColumnType("datetime");
+            entity.Property(e => e.EffectiveStartTimeUtc).HasColumnType("datetime");
+            entity.Property(e => e.Source).HasMaxLength(255);
 
             entity.HasOne(d => d.Customer).WithMany(p => p.GasMeterCustomerRelations)
                 .HasForeignKey(d => d.CustomerId)
@@ -59,27 +71,35 @@ public partial class BioDataContext : DbContext
 
         modelBuilder.Entity<GasMeterMeasurement>(entity =>
         {
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.HasIndex(e => e.MeteringPointIdentification, "IX_GasMeterMeasurements").IsUnique();
+
+            entity.Property(e => e.End).HasColumnType("datetime");
+            entity.Property(e => e.Resolution).HasMaxLength(255);
+            entity.Property(e => e.Start).HasColumnType("datetime");
+            entity.Property(e => e.Unit).HasMaxLength(255);
+
+            entity.HasOne(d => d.MeteringPointIdentificationNavigation).WithOne(p => p.GasMeterMeasurement)
+                .HasForeignKey<GasMeterMeasurement>(d => d.MeteringPointIdentification)
+                .HasConstraintName("FK_GasMeterMeasurements_GasMeteringPoint");
         });
 
         modelBuilder.Entity<GasMeteringPoint>(entity =>
         {
             entity.ToTable("GasMeteringPoint");
 
-            entity.HasIndex(e => e.Id, "IX_GasMeteringPoint").IsUnique();
-
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.InstalationPostalCode).HasMaxLength(50);
-            entity.Property(e => e.InstallationBuildingFloor).HasMaxLength(100);
-            entity.Property(e => e.InstallationCity).HasMaxLength(200);
-            entity.Property(e => e.InstallationCountry).HasMaxLength(100);
-            entity.Property(e => e.InstallationMunicipalityCode).HasMaxLength(400);
-            entity.Property(e => e.InstallationStreetName).HasMaxLength(300);
-            entity.Property(e => e.PriceAreaCode).HasMaxLength(400);
-
-            entity.HasOne(d => d.MeteringPointIdentificationNavigation).WithMany(p => p.GasMeteringPoints)
-                .HasForeignKey(d => d.MeteringPointIdentification)
-                .HasConstraintName("FK_GasMeteringPoint_GasMeterMeasurements");
+            entity.Property(e => e.EffectiveEndTimeUtc).HasColumnType("datetime");
+            entity.Property(e => e.EffectiveStartTimeUtc).HasColumnType("datetime");
+            entity.Property(e => e.InstalationPostalCode).HasMaxLength(255);
+            entity.Property(e => e.InstallationBuildingFloor).HasMaxLength(255);
+            entity.Property(e => e.InstallationBuildingNumber).HasMaxLength(255);
+            entity.Property(e => e.InstallationCity).HasMaxLength(255);
+            entity.Property(e => e.InstallationCountry).HasMaxLength(255);
+            entity.Property(e => e.InstallationMunicipalityCode).HasMaxLength(255);
+            entity.Property(e => e.InstallationRoomIdentification).HasMaxLength(255);
+            entity.Property(e => e.InstallationStreetName).HasMaxLength(255);
+            entity.Property(e => e.PriceAreaCode).HasMaxLength(255);
+            entity.Property(e => e.Source).HasMaxLength(255);
         });
 
         modelBuilder.Entity<Observation>(entity =>
