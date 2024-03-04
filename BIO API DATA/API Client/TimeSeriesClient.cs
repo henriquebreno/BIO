@@ -1,7 +1,10 @@
 ﻿using BIO_API_DATA.Data;
+using BIO_API_DATA.Model;
 using BIO_API_DATA.Model.CompositObjectModel;
+using BIO_API_DATA.Model.CustomerModel;
 using BIO_API_DATA.Model.GasMeterpointToCustomerModel;
 using BIO_API_DATA.Model.TimeSeriesModel;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Client;
 using Newtonsoft.Json;
@@ -22,14 +25,17 @@ namespace BIO_API_DATA.API_Client
 		private readonly string _baseUrl2;
 		private readonly IRestClient _restClient;
 		private readonly GasMeteringPointCustomerClient _gasMeteringPointCustomerClient;
+		private readonly BioDataContext _dbContext;
 
-	public TimeSeriesClient(IConfiguration configuration, ILogger logger, IRestClient iRestClient, GasMeteringPointCustomerClient customerClient)
+
+		public TimeSeriesClient(BioDataContext bioDataContext, IConfiguration configuration, ILogger logger, IRestClient iRestClient, GasMeteringPointCustomerClient customerClient)
 		{
 			_baseUrl = configuration.GetValue<string>("ApiSettings:TimeSeriesClient");
 			_baseUrl2 = configuration.GetValue<string>("ApiSettings:CustomerClient");
 			_logger = logger;
 			_restClient = iRestClient;
 			_gasMeteringPointCustomerClient = customerClient;
+			_dbContext = bioDataContext;
 		}
 		public async void GetTimeSeries()
 		{
@@ -102,7 +108,7 @@ namespace BIO_API_DATA.API_Client
 
 		public void MapData(List<CompositModel> compositModel)
 		{
-			BioDataContext db = new BioDataContext();
+			
 
 			foreach(var item in compositModel)
 			{
@@ -163,7 +169,7 @@ namespace BIO_API_DATA.API_Client
 					Source = "Web"
 				};
 
-				GasMeterMeasurement gasMeterMeasurement = new GasMeterMeasurement;
+				GasMeterMeasurement gasMeterMeasurement = new GasMeterMeasurement();
 
 				foreach (var measurement in item.TimeSeries.Readings)
 				{
@@ -179,6 +185,17 @@ namespace BIO_API_DATA.API_Client
 				}
 
 
+				//Check if correction
+				bool exist = false;
+				GasMeterMeasurement check;
+				foreach (var measurement in item.TimeSeries.Readings)
+				{
+					check = _dbContext.GasMeterMeasurements.FirstOrDefault(e => e.Start == measurement.Start && e.End == measurement.End);
+					if (check != null)
+					{
+						exist = true;
+					}
+				}
 				var observation = new Data.Observation();
 
 				foreach(var read in item.TimeSeries.Readings)
@@ -190,15 +207,24 @@ namespace BIO_API_DATA.API_Client
 							Quality = obs.Quality,
 							Value = obs.Value,
 							Position = obs.Position,
-							Correction = ,
+							Correction = exist,
 							GasMeterMeasurement = gasMeterMeasurement
 						};
 					}
 				}
-				
-				
 
+				// Add entities to context
+				_dbContext.Customers.Add(customer);
+				_dbContext.GasMeteringPoints.Add(gasMeteringPoint);
+				_dbContext.GasMeterCustomerRelations.Add(gasMeterCustomerRelation);
+				_dbContext.GasMeterMeasurements.Add(gasMeterMeasurement);
+				_dbContext.Observations.Add(observation);
 			}
+
+			
+
+			// Save changes to the database
+			_dbContext.SaveChanges();
 
 		}
 	}

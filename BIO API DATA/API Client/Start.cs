@@ -9,15 +9,21 @@ namespace BIO_API_DATA.API_Client
 {
 	public class Start
 	{
+		private readonly BioDataContext _bioDataContext;
+
+		public Start(BioDataContext bioDataContext)
+		{
+			_bioDataContext = bioDataContext;
+		}
 
 		public void Run()
 		{
-			var _context = new BioDataContext();
+			
 
 			// Create a customer
 			var customer = new Customer
 			{
-				Id = 1,
+				Id = 3,
 				CustomerNumber = "12345",
 				EffectiveStartTimeUtc = DateTime.UtcNow,
 				EffectiveEndTimeUtc = DateTime.UtcNow.AddDays(365),
@@ -37,8 +43,8 @@ namespace BIO_API_DATA.API_Client
 			// Create a gas metering point
 			var gasMeteringPoint = new GasMeteringPoint
 			{
-				Id = 1,
-				MeterId = 1,
+				Id = 3,
+				MeterId = 3,
 				EffectiveStartTimeUtc = DateTime.UtcNow,
 				EffectiveEndTimeUtc = DateTime.UtcNow.AddDays(365),
 				InDelivery = true,
@@ -85,14 +91,14 @@ namespace BIO_API_DATA.API_Client
 			};
 
 			// Add entities to context
-			_context.Customers.Add(customer);
-			_context.GasMeteringPoints.Add(gasMeteringPoint);
-			_context.GasMeterCustomerRelations.Add(gasMeterCustomerRelation);
-			_context.GasMeterMeasurements.Add(gasMeterMeasurement);
-			_context.Observations.Add(observation);
+			_bioDataContext.Customers.Add(customer);
+			_bioDataContext.GasMeteringPoints.Add(gasMeteringPoint);
+			_bioDataContext.GasMeterCustomerRelations.Add(gasMeterCustomerRelation);
+			_bioDataContext.GasMeterMeasurements.Add(gasMeterMeasurement);
+			_bioDataContext.Observations.Add(observation);
 
 			// Save changes to the database
-			_context.SaveChanges();
+			_bioDataContext.SaveChanges();
 		}
 
 	}

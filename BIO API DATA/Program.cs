@@ -27,12 +27,12 @@ var configuration = builder.Build();
 var host = Host.CreateDefaultBuilder()
 	.ConfigureServices((context, services) =>
 	{
-		services.AddTransient<IRestClientFactory, MyRestClientFactory>();
-		services.AddTransient<IRestClient, RestClient>();
+		services.AddScoped<IRestClientFactory, MyRestClientFactory>();
+		services.AddScoped<IRestClient, RestClient>();
 		services.AddSingleton<ITopLevelCustomersClientList, TopLevelCustomersClientList>();
-		services.AddTransient<IGasMeteringPointCustomerClientList, GasMeteringPointCustomerClientList>();
-		services.AddTransient<ILogger>(provider => Log.Logger);
-		services.AddTransient<IGasMeteringPointCustomerClient, GasMeteringPointCustomerClient>();
+		services.AddScoped<IGasMeteringPointCustomerClientList, GasMeteringPointCustomerClientList>();
+		services.AddScoped<ILogger>(provider => Log.Logger);
+		services.AddScoped<IGasMeteringPointCustomerClient, GasMeteringPointCustomerClient>();
 		services.AddDbContext<BioDataContext>(options =>
 		{
 			options.UseSqlServer(configuration.GetConnectionString("Default"));
