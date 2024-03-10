@@ -112,7 +112,7 @@ namespace BIO_API_DATA.API_Client
 
 			foreach(var item in compositModel)
 			{
-				var gasMeteringPointEntity = new GasMeteringPoint();
+				var gasMeteringPointEntity = new Data.GasMeteringPoint();
 				var gasMeterCustomerRelationEntity = new GasMeterCustomerRelation();
 				var customerEntity = new Data.Customer();
 				var gasMeterMeasurementEntity = new GasMeterMeasurement();
@@ -140,8 +140,8 @@ namespace BIO_API_DATA.API_Client
 				};
 
 				// Create a gas metering point
-				var gasMeteringPoint = new GasMeteringPoint
-				{
+				var gasMeteringPoint = new Data.GasMeteringPoint
+                {
 					Id = int.Parse(item.GasMeteringCustomerObjectModel.Id),
 					MeterId = int.Parse(item.GasMeteringCustomerObjectModel.Identifiers.MeteringPointIdentification),
 					EffectiveStartTimeUtc = item.GasMeteringCustomerObjectModel.DeliveryStatus.Start,
