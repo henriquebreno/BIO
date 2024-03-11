@@ -2,6 +2,7 @@
 {
 	public interface ITopLevelCustomersClientList
 	{
-		void GetAllCustomers();
-	}
+        Task<List<string>> GetAllCustomers();
+
+    }
 }

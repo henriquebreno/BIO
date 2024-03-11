@@ -28,7 +28,7 @@ namespace BIO_API_DATA.API_Client
 			_restClient = iRestClient;
 		}
 
-		public async void GetAllCustomers()
+		public async Task<List<string>> GetAllCustomers()
 		{
 			string url = _baseUrl + "/api/v1/topLevelCustomers";
 			List<string> allCustomerIds = new List<string>();
@@ -71,13 +71,14 @@ namespace BIO_API_DATA.API_Client
 					url = responseData?.Next;
 				}
 
+				return allCustomerIds;
 
-			}
+            }
 			catch (Exception ex)
 			{
 				_logger.Error(ex, "Error getting customers: {Message}", ex.Message);
-
-			}
+				return default ;
+            }
 		}
 	}
 }
