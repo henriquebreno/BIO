@@ -1,4 +1,8 @@
 ﻿using BIO_API_DATA.API_Client;
+using BIO_API_DATA.API_Client.ApplicationLogic;
+using BIO_API_DATA.API_Client.Database;
+using BIO_API_DATA.API_Client.Interfaces;
+using BIO_API_DATA.API_Client.Interfaces.Database;
 using BIO_API_DATA.Data;
 using BIO_API_DATA.Model;
 using Microsoft.EntityFrameworkCore;
@@ -27,11 +31,19 @@ var configuration = builder.Build();
 var host = Host.CreateDefaultBuilder()
 	.ConfigureServices((context, services) =>
 	{
-		services.AddScoped<IRestClientFactory, MyRestClientFactory>();
-		services.AddScoped<IRestClient, RestClient>();
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
+        services.AddScoped<IGasMeteringPointRepository, GasMeteringPointRepository>();
+        services.AddScoped<IGasMeterCustomerRelationRepository, GasMeterCustomerRelationRepository>();
+        services.AddScoped<IObservationRepository, ObservationRepository>();
+        services.AddScoped<IGasMeterMeasurementRepository, GasMeterMeasurementRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<ITimeSeriesLogic, TimeSeriesLogic>();
+        services.AddScoped<ITimeSeriesClient, TimeSeriesClient>();
+        services.AddScoped<IRestClient, RestClient>();
 		services.AddSingleton<ITopLevelCustomersClientList, TopLevelCustomersClientList>();
 		services.AddScoped<IGasMeteringPointCustomerClientList, GasMeteringPointCustomerClientList>();
-		services.AddScoped<ILogger>(provider => Log.Logger);
+        services.AddScoped<IRestClientFactory, MyRestClientFactory>();      
+        services.AddScoped<ILogger>(provider => Log.Logger);
 		services.AddScoped<IGasMeteringPointCustomerClient, GasMeteringPointCustomerClient>();
 		services.AddDbContext<BioDataContext>(options =>
 		{
@@ -44,4 +56,4 @@ var host = Host.CreateDefaultBuilder()
 
 var svc = ActivatorUtilities.CreateInstance<Start>(host.Services);
 
-svc.Run();
+await svc.Run();

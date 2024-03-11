@@ -1,5 +1,4 @@
 ﻿using BIO_API_DATA.API_Client;
-using Moq.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using RestSharp;
@@ -22,6 +21,7 @@ namespace UnitTests
 		private IConfiguration configuration;
 		private readonly Mock<IGasMeteringPointCustomerClient> _gasMeteringPointCustomerClient;
 		private readonly Mock<BioDataContext> _dbContext;
+        private Mock<IRestClientFactory> _restClientFactory;
 
 		public TimeSeriesClientTestcs()
 		{
@@ -36,13 +36,47 @@ namespace UnitTests
 			configuration = new ConfigurationBuilder()
 			.AddInMemoryCollection(inMemorySettings)
 			.Build();
+            _restClientFactory = new Mock<IRestClientFactory>();
 
-		}
+
+        }
 
 		[Fact]
 		public async Task GetTimeSeries_Success()
 		{
+            //Arrange
+            var clientResult = new RestResponse
+            {
+                Content = $"{{\"TopLevelCustomerIds\":[\"customer1\",\"customer2\",\"customer3\"],\"Next\":\"\",\"Prev\":\"\"}}",
+                StatusCode = System.Net.HttpStatusCode.OK,
+                StatusDescription = "OK",
+                IsSuccessStatusCode = true,
+                ResponseStatus = ResponseStatus.Completed
+            };
 
-		}
+
+            var customerResponse = new List<string>
+            {
+                { "customer1"},
+                { "customer2"},
+                { "customer3"},
+            };
+
+
+            _restClient.Setup(s => s.ExecuteAsync(It.IsAny<RestRequest>(), It.IsAny<CancellationToken>()))
+                       .ReturnsAsync(clientResult);
+
+
+
+            var client = new TopLevelCustomersClientList(configuration, _ILogger.Object, _restClientFactory.Object, _restClient.Object);
+
+            //Act
+            
+            var result = await client.GetAllCustomers();
+
+            Assert.NotNull(result);
+            Assert.Equal(3, result.Count);
+            Assert.True(customerResponse.SequenceEqual(result));
+        }
 	}
 }

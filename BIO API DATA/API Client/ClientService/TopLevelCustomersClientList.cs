@@ -16,19 +16,18 @@ namespace BIO_API_DATA.API_Client
 		private readonly IConfiguration _configuration;
 		private readonly ILogger _logger;
 		private readonly IRestClientFactory _restClientFactory;
-		private readonly string _baseUrl;
+		private string _baseUrl => _configuration.GetValue<string>("ApiSettings:TopLevelCustomerClient");
 		private readonly IRestClient _restClient;
-		public  readonly static List<string> _allCustomerIds = new List<string>();
 
 		public TopLevelCustomersClientList(IConfiguration configuration, ILogger logger, IRestClientFactory restClientFactory, IRestClient iRestClient)
 		{
-			_baseUrl = configuration.GetValue<string>("ApiSettings:TopLevelCustomersClient");
+			_configuration = configuration;
 			_logger = logger;
 			_restClientFactory = restClientFactory;
 			_restClient = iRestClient;
 		}
-
-		public async void GetAllCustomers()
+	 
+		public async Task<List<string>> GetAllCustomers()
 		{
 			string url = _baseUrl + "/api/v1/topLevelCustomers";
 			List<string> allCustomerIds = new List<string>();
@@ -72,10 +71,15 @@ namespace BIO_API_DATA.API_Client
 				}
 
 
-			}
+				return allCustomerIds;
+
+
+            }
 			catch (Exception ex)
 			{
-				_logger.Error(ex, "Error getting customers: {Message}", ex.Message);
+
+                _logger.Error(ex, "Error getting customers: {Message}", ex.Message);
+				return default;
 
 			}
 		}
