@@ -20,8 +20,8 @@ namespace BIO_API_DATA.API_Client
 		private readonly ILogger _logger;
 		private readonly string _baseUrl;
 		private readonly IRestClient _restClient;
-		public readonly GasMeteringPointCustomerClientList _customerGas;
-		public GasMeteringPointCustomerClient(IConfiguration configuration, ILogger logger, IRestClient iRestClient, GasMeteringPointCustomerClientList customersClient)
+		public readonly IGasMeteringPointCustomerClientList _customerGas;
+		public GasMeteringPointCustomerClient(IConfiguration configuration, ILogger logger, IRestClient iRestClient, IGasMeteringPointCustomerClientList customersClient)
 		{
 			_baseUrl = configuration.GetValue<string>("ApiSettings:GasMeteringPointCustomerClient");
 			_logger = logger;
@@ -29,13 +29,12 @@ namespace BIO_API_DATA.API_Client
 			_customerGas = customersClient;
 		}
 
-		public async Task<List<GasMeteringCustomerObjectModel>> GetGasCustomer()
+		public async Task<List<GasMeteringCustomerObjectModel>> GetGasCustomer(List<GasMeterPointCustomerModel> customerGasRelations)
 		{
 			List<GasMeteringCustomerObjectModel> gasMeteringCustomerObjectModelList = new List<GasMeteringCustomerObjectModel>();
-			var customerGasrelations = _customerGas.GetGasmeteringPointCustomerassociation();
 			string url = _baseUrl;
-
-			foreach (var customer in customerGasrelations.Result)
+            			
+            foreach (var customer in customerGasRelations)
 			{
 				foreach (var gas in customer.GasMeteringPoints)
 				{

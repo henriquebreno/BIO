@@ -4,6 +4,7 @@ namespace BIO_API_DATA.API_Client
 {
 	public interface IGasMeteringPointCustomerClientList
 	{
-		Task<List<GasMeterPointCustomerModel>> GetGasmeteringPointCustomerassociation();
-	}
+        Task<List<GasMeterPointCustomerModel>> GetGasmeteringPointCustomerassociation(List<string> CustomerIdList);
+
+    }
 }

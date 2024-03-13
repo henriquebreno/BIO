@@ -1,4 +1,5 @@
-﻿using BIO_API_DATA.Data;
+﻿using BIO_API_DATA.API_Client.Interfaces;
+using BIO_API_DATA.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +11,16 @@ namespace BIO_API_DATA.API_Client
 	public class Start
 	{
 		private readonly BioDataContext _bioDataContext;
+		private readonly ITimeSeriesLogic _timeSeriesLogic;
 
-		public Start(BioDataContext bioDataContext)
+		public Start(BioDataContext bioDataContext, ITimeSeriesLogic timeSeriesLogic)
 		{
 			_bioDataContext = bioDataContext;
-		}
+			_timeSeriesLogic = timeSeriesLogic;
 
-		public void Run()
+        }
+
+		public async Task Run()
 		{
 			
 
@@ -89,6 +93,8 @@ namespace BIO_API_DATA.API_Client
 				Correction = false,
 				GasMeterMeasurement = gasMeterMeasurement
 			};
+			await _timeSeriesLogic.AddTimeSeriesAsync();
+
 
 			// Add entities to context
 			_bioDataContext.Customers.Add(customer);
