@@ -28,14 +28,8 @@ namespace BIO_API_DATA.API_Client
 			_customersClient = customersClient;
 		}
 
-		public async Task<List<GasMeterPointCustomerModel>> GetGasmeteringPointCustomerassociation()
+		public async Task<List<GasMeterPointCustomerModel>> GetGasmeteringPointCustomerassociation(List<string> CustomerIdList)
 		{
-
-			_customersClient.GetAllCustomers();
-
-			var CustomerIdList = TopLevelCustomersClientList._allCustomerIds;
-
-
 			var GasMeterPointCustomerIDList = new List<GasMeterPointCustomerModel>();
 
 			string url;

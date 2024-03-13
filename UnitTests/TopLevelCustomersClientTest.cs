@@ -70,8 +70,8 @@ namespace UnitTests
             var client = new TopLevelCustomersClientList(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
 
             //Act
-            client.GetAllCustomers();
-            var result = TopLevelCustomersClientList._allCustomerIds;
+            
+            var result = await client.GetAllCustomers();
 
             Assert.NotNull(result);
             Assert.Equal(3, result.Count);
@@ -134,8 +134,8 @@ namespace UnitTests
             var client = new TopLevelCustomersClientList(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
 
 			//Act
-			client.GetAllCustomers();
-			var result = TopLevelCustomersClientList._allCustomerIds;
+			
+			var result = await client.GetAllCustomers();
 
 
 			Assert.NotNull(result);
@@ -156,8 +156,8 @@ namespace UnitTests
             var client = new TopLevelCustomersClientList(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
 
 			//Act
-			client.GetAllCustomers();
-			var result = TopLevelCustomersClientList._allCustomerIds;
+			
+			var result = await client.GetAllCustomers(); ;
 
 			// Assert
 			Assert.NotNull(result);
