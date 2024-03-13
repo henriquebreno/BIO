@@ -31,12 +31,12 @@ namespace BIO_API_DATA.API_Client
 		public async Task<List<GasMeterPointCustomerModel>> GetGasmeteringPointCustomerassociation()
 		{
 
-			_customersClient.GetAllCustomers();
+			
 
-			var CustomerIdList = TopLevelCustomersClientList._allCustomerIds;
+			var CustomerIdList = await _customersClient.GetAllCustomers();
 
 
-			var GasMeterPointCustomerIDList = new List<GasMeterPointCustomerModel>();
+            var GasMeterPointCustomerIDList = new List<GasMeterPointCustomerModel>();
 
 			string url;
 

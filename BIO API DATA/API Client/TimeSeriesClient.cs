@@ -1,4 +1,5 @@
-﻿using BIO_API_DATA.Data;
+﻿using BIO_API_DATA.API_Client.Interfaces;
+using BIO_API_DATA.Data;
 using BIO_API_DATA.Model;
 using BIO_API_DATA.Model.CompositObjectModel;
 using BIO_API_DATA.Model.CustomerModel;
@@ -18,17 +19,18 @@ using System.Threading.Tasks;
 
 namespace BIO_API_DATA.API_Client
 {
-	public class TimeSeriesClient 
+	public class TimeSeriesClient : ITimeSeriesClient
 	{ 
 		private readonly ILogger _logger;
 		private readonly string _baseUrl;
 		private readonly string _baseUrl2;
 		private readonly IRestClient _restClient;
-		private readonly GasMeteringPointCustomerClient _gasMeteringPointCustomerClient;
+		private readonly IGasMeteringPointCustomerClient _gasMeteringPointCustomerClient;
 		private readonly BioDataContext _dbContext;
+		private readonly ITopLevelCustomersClientList _topLevelCustomersClient;
 
 
-		public TimeSeriesClient(BioDataContext bioDataContext, IConfiguration configuration, ILogger logger, IRestClient iRestClient, GasMeteringPointCustomerClient customerClient)
+        public TimeSeriesClient(BioDataContext bioDataContext, IConfiguration configuration, ILogger logger, IRestClient iRestClient, IGasMeteringPointCustomerClient customerClient, ITopLevelCustomersClientList topLevelCustomersClient)
 		{
 			_baseUrl = configuration.GetValue<string>("ApiSettings:TimeSeriesClient");
 			_baseUrl2 = configuration.GetValue<string>("ApiSettings:CustomerClient");
@@ -36,17 +38,20 @@ namespace BIO_API_DATA.API_Client
 			_restClient = iRestClient;
 			_gasMeteringPointCustomerClient = customerClient;
 			_dbContext = bioDataContext;
-		}
-		public async void GetTimeSeries()
+			_topLevelCustomersClient = topLevelCustomersClient;
+
+        }
+		public async Task GetTimeSeries()
 		{
 			List<CompositModel> compositModel = new List<CompositModel>();
 			string url = _baseUrl;
-			var _gasMeteringPointCustomerClientList = _gasMeteringPointCustomerClient.GetGasCustomer();
+			var gasMeteringPointCustomerClientList = await _gasMeteringPointCustomerClient.GetGasCustomer();
+			var allCustomerIds = await _topLevelCustomersClient.GetAllCustomers();
 
 
-			foreach (var topLevelCustomerId in TopLevelCustomersClientList._allCustomerIds)
+            foreach (var topLevelCustomerId in allCustomerIds)
 			{
-				foreach (var client in _gasMeteringPointCustomerClientList.Result)
+				foreach (var client in gasMeteringPointCustomerClientList)
 				{
 					//If customer is not associated with the gasmeter anymore ignore
 					if (client.Customer.End.Date < DateTime.Now.Date)
@@ -68,12 +73,12 @@ namespace BIO_API_DATA.API_Client
 
 					var timeseries = JsonConvert.DeserializeObject<TimeSeries>(content);
 
-					var customerDetailedInfo = GetCustomerInfo(topLevelCustomerId, client.Customer.Id);
+					var customerDetailedInfo = await GetCustomerInfo(topLevelCustomerId, client.Customer.Id);
 
 					compositModel.Add(new CompositModel
 					{
 						GasMeteringCustomerObjectModel = client,
-						Customer = customerDetailedInfo.Result,
+						Customer = customerDetailedInfo,
 						TimeSeries = timeseries
 
 					});
