@@ -79,8 +79,7 @@ namespace BIO_API_DATA.API_Client
 			{
 
                 _logger.Error(ex, "Error getting customers: {Message}", ex.Message);
-				return default;
-
+				throw ex;
 			}
 		}
 	}

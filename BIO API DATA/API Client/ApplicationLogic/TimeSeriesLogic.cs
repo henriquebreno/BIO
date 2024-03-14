@@ -56,18 +56,23 @@ namespace BIO_API_DATA.API_Client.ApplicationLogic
             var customerGasRelations = await _gasMeteringPointCustomer.GetGasCustomer(gastMeteringPoint);
             var compositModel = await _timeSeriesClient.GetTimeSeries(customerIds, customerGasRelations);
 
-            var mapCompositToEntity = MapData(compositModel);
-            _gasMeteringPointRepository.Add(mapCompositToEntity.Item1);
-            _gasMeterCustomerRelationRepository.Add(mapCompositToEntity.Item2);
-            _customerRepository.Add(mapCompositToEntity.Item3);
-            _gasMeterMeasurementRepository.Add(mapCompositToEntity.Item4);
-            _observationRepository.Add(mapCompositToEntity.Item5);
+            var mapCompositToEntity = MapData(compositModel, _gasMeterMeasurementRepository);
+
+            foreach (var tuple in mapCompositToEntity) {
+                _gasMeteringPointRepository.Add(tuple.Item1);
+                _gasMeterCustomerRelationRepository.Add(tuple.Item2);
+                _customerRepository.Add(tuple.Item3);
+                _gasMeterMeasurementRepository.Add(tuple.Item4);
+                _observationRepository.Add(tuple.Item5);
+            }
+
+            
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public (GasMeteringPoint, GasMeterCustomerRelation, Customer, GasMeterMeasurement, Observation) MapData(List<CompositModel> compositModel)
+        public List<(GasMeteringPoint, GasMeterCustomerRelation, Customer, GasMeterMeasurement, Observation)> MapData(List<CompositModel> compositModel, IGasMeterMeasurementRepository gasMeterRepository)
         {
-
+            var tupleList = new List<(GasMeteringPoint, GasMeterCustomerRelation, Customer, GasMeterMeasurement, Observation)>();
             var gasMeteringPointEntity = new Data.GasMeteringPoint();
             var gasMeterCustomerRelationEntity = new GasMeterCustomerRelation();
             var customerEntity = new Data.Customer();
@@ -76,8 +81,6 @@ namespace BIO_API_DATA.API_Client.ApplicationLogic
 
             foreach (var item in compositModel)
             {
-
-
                 // Create a customer
                 var customer = new Data.Customer()
                 {
@@ -149,11 +152,11 @@ namespace BIO_API_DATA.API_Client.ApplicationLogic
                 GasMeterMeasurement check;
                 foreach (var measurement in item.TimeSeries.Readings)
                 {
-                    //check = _dbContext.GasMeterMeasurements.FirstOrDefault(e => e.Start == measurement.Start && e.End == measurement.End);
-                    //if (check != null)
-                    //{
-                    //    exist = true;
-                    //}
+                    check = gasMeterRepository.GetAll().FirstOrDefault(e => e.Start == measurement.Start && e.End == measurement.End);
+                    if (check != null)
+                    {
+                        exist = true;
+                    }
                 }
                 var observation = new Data.Observation();
 
@@ -171,11 +174,10 @@ namespace BIO_API_DATA.API_Client.ApplicationLogic
                         };
                     }
                 }
-
-               
+                tupleList.Add((gasMeteringPointEntity, gasMeterCustomerRelation, customer,gasMeterMeasurement, observation));
             }
 
-            return (gasMeteringPointEntity, gasMeterCustomerRelationEntity, customerEntity, gasMeterMeasurementEntity, observationEntity);
+            return tupleList;
         }
     }
 }
