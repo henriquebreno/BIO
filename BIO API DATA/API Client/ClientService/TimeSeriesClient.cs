@@ -25,23 +25,17 @@ namespace BIO_API_DATA.API_Client
 		private readonly string _baseUrl;
 		private readonly string _baseUrl2;
 		private readonly IRestClient _restClient;
-		private readonly IGasMeteringPointCustomerClient _gasMeteringPointCustomerClient;
-		private readonly IGasMeteringPointCustomerClientList _customerGas;
-        private readonly ITopLevelCustomersClientList _topLevelCustomersClientList;
 
         private readonly BioDataContext _dbContext;
 
 
-		public TimeSeriesClient(BioDataContext bioDataContext, IConfiguration configuration, ILogger logger, IRestClient iRestClient, IGasMeteringPointCustomerClient gasMeteringPointCustomerClientList, ITopLevelCustomersClientList topLevelCustomersClientList, IGasMeteringPointCustomerClientList customerGas)
+		public TimeSeriesClient(BioDataContext bioDataContext, IConfiguration configuration, ILogger logger, IRestClient iRestClient)
 		{
 			_baseUrl = configuration.GetValue<string>("ApiSettings:TimeSeriesClient");
 			_baseUrl2 = configuration.GetValue<string>("ApiSettings:CustomerClient");
 			_logger = logger;
 			_restClient = iRestClient;
 			_dbContext = bioDataContext;
-            _gasMeteringPointCustomerClient = gasMeteringPointCustomerClientList;
-			_topLevelCustomersClientList = topLevelCustomersClientList;
-			_customerGas = customerGas;
         }
 
 		public async Task<List<CompositModel>> GetTimeSeries(List<string> customerIds,List<GasMeteringCustomerObjectModel> customerGasRelations)
@@ -73,12 +67,12 @@ namespace BIO_API_DATA.API_Client
 
 					var timeseries = JsonConvert.DeserializeObject<TimeSeries>(content);
 
-					var customerDetailedInfo = GetCustomerInfo(topLevelCustomerId, client.Customer.Id);
+					var customerDetailedInfo = await GetCustomerInfo(topLevelCustomerId, client.Customer.Id);
 
 					compositModel.Add(new CompositModel
 					{
 						GasMeteringCustomerObjectModel = client,
-						Customer = customerDetailedInfo.Result,
+						Customer = customerDetailedInfo,
 						TimeSeries = timeseries
 
 					});

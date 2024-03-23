@@ -156,12 +156,9 @@ namespace UnitTests
             var client = new TopLevelCustomersClientList(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
 
 			//Act
-			
-			var result = await client.GetAllCustomers(); ;
-
-			// Assert
-			Assert.NotNull(result);
-            Assert.Empty(result);
+            // Assert
+            await Assert.ThrowsAsync<Exception>(client.GetAllCustomers);
+         
         }
 
 
