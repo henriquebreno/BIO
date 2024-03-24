@@ -9,5 +9,6 @@ namespace BIO_API_DATA.API_Client.Interfaces.Database
 {
     public interface IGasMeterCustomerRelationRepository : IRepository<GasMeterCustomerRelation>
     {
+        void DeactivateLastRelation(long customerId);
     }
 }

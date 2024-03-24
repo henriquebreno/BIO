@@ -69,10 +69,11 @@ public partial class BioDataContext : DbContext
 		{
 			entity.HasIndex(e => e.MeteringPointIdentification, "IX_GasMeterMeasurements").IsUnique();
 
-			entity.Property(e => e.End).HasColumnType("datetime");
+			entity.Property(e => e.EndUtc).HasColumnType("datetime");
 			entity.Property(e => e.Resolution).HasMaxLength(255);
-			entity.Property(e => e.Start).HasColumnType("datetime");
-			entity.Property(e => e.Unit).HasMaxLength(255);
+			entity.Property(e => e.StartUtc).HasColumnType("datetime");
+            entity.Property(e => e.LastChangedUtc).HasColumnType("datetime");
+            entity.Property(e => e.Unit).HasMaxLength(255);
 
 			entity.HasOne(d => d.MeteringPointIdentificationNavigation).WithOne(p => p.GasMeterMeasurement)
 				.HasForeignKey<GasMeterMeasurement>(d => d.MeteringPointIdentification)

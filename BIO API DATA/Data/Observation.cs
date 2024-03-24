@@ -18,4 +18,6 @@ public partial class Observation
     public bool? Correction { get; set; }
 
     public virtual GasMeterMeasurement? GasMeterMeasurement { get; set; }
+
+    public DateTime? LastChanged { get; set; }
 }

@@ -16,8 +16,8 @@ namespace UnitTests
                     new GasMeterMeasurement
                     {
                         Id = 1, 
-                        Start = DateTime.UtcNow.AddHours(-1),
-                        End = DateTime.UtcNow, 
+                        StartUtc = DateTime.UtcNow.AddHours(-1),
+                        EndUtc = DateTime.UtcNow, 
                         Resolution = "Some resolution", 
                         Unit = "Some unit", 
                         MeteringPointIdentification = 1, 

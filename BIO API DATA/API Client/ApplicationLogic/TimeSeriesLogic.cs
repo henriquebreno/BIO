@@ -1,10 +1,12 @@
-﻿using BIO_API_DATA.API_Client.Interfaces;
+﻿using BIO_API_DATA.API_Client.Database;
+using BIO_API_DATA.API_Client.Interfaces;
 using BIO_API_DATA.API_Client.Interfaces.Database;
 using BIO_API_DATA.Data;
 using BIO_API_DATA.Model.CompositObjectModel;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -60,9 +62,14 @@ namespace BIO_API_DATA.API_Client.ApplicationLogic
 
             foreach (var tuple in mapCompositToEntity) {
                 _gasMeteringPointRepository.Add(tuple.Item1);
+                _gasMeterCustomerRelationRepository.DeactivateLastRelation((int)tuple.Item2.CustomerId);
                 _gasMeterCustomerRelationRepository.Add(tuple.Item2);
                 _customerRepository.Add(tuple.Item3);
-                _gasMeterMeasurementRepository.Add(tuple.Item4);
+                _gasMeterMeasurementRepository.AddOrUpdate(tuple.Item4, e =>
+                            e.MeteringPointIdentification == tuple.Item4.MeteringPointIdentification &&
+                            e.Resolution == tuple.Item4.Resolution &&
+                            e.Unit == tuple.Item4.Unit
+                        );
                 _observationRepository.Add(tuple.Item5);
             }
 
@@ -121,11 +128,13 @@ namespace BIO_API_DATA.API_Client.ApplicationLogic
                     Source = "Web"
                 };
 
+
+                var effectiveStartTimeFromRelation = GetEffectiveStartDateFromRelation(customer.Id, gasMeteringPoint.Id);
                 // Create a gas meter customer relation
                 var gasMeterCustomerRelation = new GasMeterCustomerRelation
                 {
-                    EffectiveStartTimeUtc = item.GasMeteringCustomerObjectModel.Customer.Start,
-                    EffectiveEndTimeUtc = item.GasMeteringCustomerObjectModel.Customer.End,
+                    EffectiveStartTimeUtc = effectiveStartTimeFromRelation != null? effectiveStartTimeFromRelation : item.GasMeteringCustomerObjectModel.Customer.Start,
+                    EffectiveEndTimeUtc = null,
                     Customer = customer,
                     GasMeteringPoint = gasMeteringPoint,
                     Source = "Web"
@@ -138,8 +147,8 @@ namespace BIO_API_DATA.API_Client.ApplicationLogic
                     // Create a gas meter measurement
                     gasMeterMeasurement = new GasMeterMeasurement
                     {
-                        Start = measurement.Start,
-                        End = measurement.End,
+                        StartUtc = measurement.Start,
+                        EndUtc = measurement.End,
                         Resolution = measurement.Resolution,
                         Unit = measurement.Unit,
                         MeteringPointIdentificationNavigation = gasMeteringPoint
@@ -148,16 +157,17 @@ namespace BIO_API_DATA.API_Client.ApplicationLogic
 
 
                 //Check if correction
-                bool exist = false;
-                GasMeterMeasurement check;
-                foreach (var measurement in item.TimeSeries.Readings)
-                {
-                    check = gasMeterRepository.GetAll().FirstOrDefault(e => e.Start == measurement.Start && e.End == measurement.End);
-                    if (check != null)
-                    {
-                        exist = true;
-                    }
-                }
+                var isCorrection = item.TimeSeries.Readings.FirstOrDefault(measurement => {
+                    return gasMeterRepository.GetAll()
+                        ?.FirstOrDefault(e =>
+                            e.StartUtc == measurement.Start &&
+                            e.EndUtc == measurement.End &&
+                            e.Resolution == measurement.Resolution &&
+                            e.Unit == measurement.Unit &&
+                            e.MeteringPointIdentification == gasMeteringPoint.Id
+                        ) != null;
+                }) != null;
+
                 var observation = new Data.Observation();
 
                 foreach (var read in item.TimeSeries.Readings)
@@ -169,8 +179,9 @@ namespace BIO_API_DATA.API_Client.ApplicationLogic
                             Quality = obs.Quality,
                             Value = obs.Value,
                             Position = obs.Position,
-                            Correction = exist,
-                            GasMeterMeasurement = gasMeterMeasurement
+                            Correction = isCorrection,
+                            GasMeterMeasurement = gasMeterMeasurement,
+                            LastChanged = isCorrection ? DateTime.UtcNow : null
                         };
                     }
                 }
@@ -179,5 +190,20 @@ namespace BIO_API_DATA.API_Client.ApplicationLogic
 
             return tupleList;
         }
-    }
+
+        public DateTime? GetEffectiveStartDateFromRelation(long customerId,long gasMeteringId)
+        {
+            var gasMeteringRelation =  _gasMeterCustomerRelationRepository.GetAll()
+                                        .FirstOrDefault(x => 
+                                            x.CustomerId == customerId && 
+                                            x.GasMeteringPointId == gasMeteringId
+                                        );
+
+            if (gasMeteringRelation != null)
+            {
+                return DateTime.UtcNow;
+            }
+            return null;
+        }
+    }  
 }
