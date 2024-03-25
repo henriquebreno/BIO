@@ -12,6 +12,9 @@ using BIO_API_DATA.API_Client.Database;
 using BIO_API_DATA.Model;
 using BIO_API_DATA.Model.CompositObjectModel;
 using BIO_API_DATA.Model.TimeSeriesModel;
+using Microsoft.Extensions.Logging;
+using Serilog.Core;
+using System;
 
 namespace UnitTests
 {
@@ -30,6 +33,7 @@ namespace UnitTests
         private readonly Mock<IObservationRepository> _observationRepository;
         private readonly Mock<IGasMeteringPointRepository> _gasMeteringPointRepository;
         private readonly Mock<IUnitOfWork> _unitOfWork;
+		private readonly Mock<ILogger<TimeSeriesLogic>> _logger;
 
 
         public TimeSeriesClientTestcs()
@@ -46,7 +50,9 @@ namespace UnitTests
             _restClient = new Mock<IRestClient>();
 			_gasMeteringPointCustomerClient = new Mock<IGasMeteringPointCustomerClient>();
 			_dbContext = new Mock<BioDataContext>();
-			Dictionary<string, string> inMemorySettings =
+			_logger = new Mock<ILogger<TimeSeriesLogic>>();
+
+            Dictionary<string, string> inMemorySettings =
 			new Dictionary<string, string> {
 				{"ApiSettings:TimeSeriesClient", "https://your-api-url-for-class-1"},
 				{"ApiSettings:CustomerClient", "https://your-api-url-for-class-2"},
@@ -113,10 +119,11 @@ namespace UnitTests
 			_gasMeteringPointRepository.Setup(x => x.Add(It.IsAny<BIO_API_DATA.Data.GasMeteringPoint>()));
 			_customerRepository.Setup(x => x.Add(It.IsAny<BIO_API_DATA.Data.Customer>()));
 			_gasMeterCustomerRelationRepository.Setup(x => x.Add(It.IsAny<BIO_API_DATA.Data.GasMeterCustomerRelation>()));
-			_observationRepository.Setup(x => x.Add(It.IsAny<BIO_API_DATA.Data.Observation>()));
-			_gasMeterMeasurementRepository.Setup(x => x.Add(It.IsAny<BIO_API_DATA.Data.GasMeterMeasurement>()));
 
-            var client = new TimeSeriesLogic(_timeSeriesClient.Object, _topLevelCustomersClient.Object, _gasMeteringPointCustomerClientList.Object, _gasMeteringPointCustomerClient.Object, _customerRepository.Object, _gasMeterCustomerRelationRepository.Object, _gasMeterMeasurementRepository.Object, _observationRepository.Object, _gasMeteringPointRepository.Object,_unitOfWork.Object);
+            _observationRepository.Setup(x => x.Add(It.IsAny<BIO_API_DATA.Data.Observation>()));
+			_gasMeterMeasurementRepository.Setup(x => x.AddOrUpdate(It.IsAny<BIO_API_DATA.Data.GasMeterMeasurement>(), It.IsAny<Func<GasMeterMeasurement, bool>>()));
+            _gasMeterCustomerRelationRepository.Setup(x=> x.DeactivateLastRelation(It.IsAny<int>()));
+            var client = new TimeSeriesLogic(_timeSeriesClient.Object, _topLevelCustomersClient.Object, _gasMeteringPointCustomerClientList.Object, _gasMeteringPointCustomerClient.Object, _customerRepository.Object, _gasMeterCustomerRelationRepository.Object, _gasMeterMeasurementRepository.Object, _observationRepository.Object, _gasMeteringPointRepository.Object,_unitOfWork.Object, _logger.Object);
 
 			//Act
 			await client.AddTimeSeriesAsync();
@@ -124,9 +131,8 @@ namespace UnitTests
             //Assert
             _gasMeteringPointRepository.Verify(x => x.Add(It.IsAny<BIO_API_DATA.Data.GasMeteringPoint>()), Times.Exactly(quantityAdded));
             _customerRepository.Verify(x => x.Add(It.IsAny<BIO_API_DATA.Data.Customer>()), Times.Exactly(quantityAdded));
-            _gasMeterCustomerRelationRepository.Verify(x => x.Add(It.IsAny<BIO_API_DATA.Data.GasMeterCustomerRelation>()), Times.Exactly(quantityAdded));
-            _observationRepository.Verify(x => x.Add(It.IsAny<BIO_API_DATA.Data.Observation>()), Times.Exactly(quantityAdded));
-            _gasMeterMeasurementRepository.Verify(x => x.Add(It.IsAny<BIO_API_DATA.Data.GasMeterMeasurement>()), Times.Exactly(quantityAdded));
+            _gasMeterCustomerRelationRepository.Verify(x => x.Add(It.IsAny<BIO_API_DATA.Data.GasMeterCustomerRelation>()),Times.Exactly(quantityAdded)); _observationRepository.Verify(x => x.Add(It.IsAny<BIO_API_DATA.Data.Observation>()), Times.Exactly(quantityAdded));
+            _gasMeterMeasurementRepository.Verify(x => x.AddOrUpdate(It.IsAny<BIO_API_DATA.Data.GasMeterMeasurement>(), It.IsAny<Func<GasMeterMeasurement, bool>>()), Times.Exactly(quantityAdded));
         }
 
 	}

@@ -67,7 +67,7 @@ namespace BIO_API_DATA.API_Client.ApplicationLogic
 
                 foreach (var tuple in mapCompositToEntity) {
                     _gasMeteringPointRepository.Add(tuple.Item1);
-                    _gasMeterCustomerRelationRepository.DeactivateLastRelation((int)tuple.Item2.CustomerId);
+                    _gasMeterCustomerRelationRepository.DeactivateLastRelation((int)tuple.Item3.Id);
                     _gasMeterCustomerRelationRepository.Add(tuple.Item2);
                     _customerRepository.Add(tuple.Item3);
                     _gasMeterMeasurementRepository.AddOrUpdate(tuple.Item4, e =>
