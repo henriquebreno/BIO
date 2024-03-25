@@ -15,6 +15,14 @@ namespace BIO_API_DATA.API_Client.Database
         {
 
         }
+        public void DeactivateLastRelation(long customerId) 
+        {
+            var relation = this.GetAll().LastOrDefault(x => x.CustomerId == customerId);
+            if (relation != null) {
+                relation.EffectiveEndTimeUtc = DateTime.UtcNow;
+                this.Update(relation);
+            }
+        }
 
     }
 }

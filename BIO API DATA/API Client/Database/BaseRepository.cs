@@ -1,10 +1,5 @@
 ﻿using BIO_API_DATA.API_Client.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BIO_API_DATA.API_Client.Database
 {
@@ -50,5 +45,18 @@ namespace BIO_API_DATA.API_Client.Database
             }
             _dbSet.Remove(entity);
         }
+
+        public virtual void AddOrUpdate(TEntity entity, Func<TEntity, bool> predicate)
+        {
+            if (_dbSet.Any(predicate))
+            {
+                Update(entity);
+            }
+            else
+            {
+                Add(entity);
+            }
+        }
+        
     }
 }

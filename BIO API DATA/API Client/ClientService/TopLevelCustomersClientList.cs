@@ -1,8 +1,8 @@
 ﻿using BIO_API_DATA.Model;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RestSharp;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,15 +15,13 @@ namespace BIO_API_DATA.API_Client
 	{
 		private readonly IConfiguration _configuration;
 		private readonly ILogger _logger;
-		private readonly IRestClientFactory _restClientFactory;
 		private string _baseUrl => _configuration.GetValue<string>("ApiSettings:TopLevelCustomerClient");
 		private readonly IRestClient _restClient;
 
-		public TopLevelCustomersClientList(IConfiguration configuration, ILogger logger, IRestClientFactory restClientFactory, IRestClient iRestClient)
+		public TopLevelCustomersClientList(IConfiguration configuration, ILogger<TopLevelCustomersClientList> logger, IRestClient iRestClient)
 		{
 			_configuration = configuration;
 			_logger = logger;
-			_restClientFactory = restClientFactory;
 			_restClient = iRestClient;
 		}
 	 
@@ -34,7 +32,7 @@ namespace BIO_API_DATA.API_Client
 
 			try
 			{
-				_logger.Information("Starting at URL: {Url}", url);
+				_logger.LogInformation("Starting at URL: {Url}", url);
 
 				while (!string.IsNullOrEmpty(url))
 				{
@@ -47,24 +45,24 @@ namespace BIO_API_DATA.API_Client
 						throw new Exception($"Error getting customers: {response.StatusDescription}");
 					}
 
-					_logger.Information("Response status: {StatusDescription}", response.StatusDescription);
+					_logger.LogInformation("Response status: {StatusDescription}", response.StatusDescription);
 
 					var content = response.Content;
 
-					_logger.Debug("Raw JSON response: {Content}", content);
+                    _logger.LogDebug("Raw JSON response: {Content}", content);
 
 					var responseData = JsonConvert.DeserializeObject<CustomerResponse>(content);
 
-					_logger.Information("Deserialized response: {ResponseData}", responseData);
+					_logger.LogInformation("Deserialized response: {ResponseData}", responseData);
 
 					if (responseData?.TopLevelCustomerIds != null)
 					{
-						_logger.Information("Adding {Count} customer IDs:", responseData.TopLevelCustomerIds.Count);
+						_logger.LogInformation("Adding {Count} customer IDs:", responseData.TopLevelCustomerIds.Count);
 						allCustomerIds.AddRange(responseData.TopLevelCustomerIds);
 					}
 					else
 					{
-						_logger.Warning("Missing 'topLevelCustomerIds' property in response");
+						_logger.LogWarning("Missing 'topLevelCustomerIds' property in response");
 					}
 
 					url = responseData?.Next;
@@ -78,7 +76,7 @@ namespace BIO_API_DATA.API_Client
 			catch (Exception ex)
 			{
 
-                _logger.Error(ex, "Error getting customers: {Message}", ex.Message);
+                _logger.LogError(ex, "Error getting customers: {Message}", ex.Message);
 				throw ex;
 			}
 		}

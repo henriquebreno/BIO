@@ -7,10 +7,10 @@ using BIO_API_DATA.Model.GasMeterpointToCustomerModel;
 using BIO_API_DATA.Model.TimeSeriesModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 using RestSharp;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +29,7 @@ namespace BIO_API_DATA.API_Client
         private readonly BioDataContext _dbContext;
 
 
-		public TimeSeriesClient(BioDataContext bioDataContext, IConfiguration configuration, ILogger logger, IRestClient iRestClient)
+		public TimeSeriesClient(BioDataContext bioDataContext, IConfiguration configuration, ILogger<TimeSeriesClient> logger, IRestClient iRestClient)
 		{
 			_baseUrl = configuration.GetValue<string>("ApiSettings:TimeSeriesClient");
 			_baseUrl2 = configuration.GetValue<string>("ApiSettings:CustomerClient");

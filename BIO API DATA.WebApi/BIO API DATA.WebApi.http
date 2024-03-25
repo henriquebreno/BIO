@@ -1,0 +1,6 @@
+@BIO_API_DATA.WebApi_HostAddress = http://localhost:5123
+
+GET {{BIO_API_DATA.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -7,9 +7,9 @@ public partial class GasMeterMeasurement
 {
     public long Id { get; set; }
 
-    public DateTime? Start { get; set; }
+    public DateTime? StartUtc { get; set; }
 
-    public DateTime? End { get; set; }
+    public DateTime? EndUtc { get; set; }
 
     public string? Resolution { get; set; }
 
@@ -20,4 +20,6 @@ public partial class GasMeterMeasurement
     public virtual GasMeteringPoint? MeteringPointIdentificationNavigation { get; set; }
 
     public virtual ICollection<Observation> Observations { get; set; } = new List<Observation>();
+
+    public DateTime? LastChangedUtc { get; set; }
 }

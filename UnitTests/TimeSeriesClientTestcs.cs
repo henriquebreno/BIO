@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Moq;
 using RestSharp;
-using Serilog;
 using BIO_API_DATA.Data;
 using BIO_API_DATA.Model.GasMeterpointToCustomerModel;
 using Newtonsoft.Json;

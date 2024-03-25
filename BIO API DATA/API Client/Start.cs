@@ -77,8 +77,8 @@ namespace BIO_API_DATA.API_Client
 			// Create a gas meter measurement
 			var gasMeterMeasurement = new GasMeterMeasurement
 			{
-				Start = DateTime.UtcNow,
-				End = DateTime.UtcNow.AddHours(1),
+				StartUtc = DateTime.UtcNow,
+				EndUtc = DateTime.UtcNow.AddHours(1),
 				Resolution = "Hourly",
 				Unit = "Cubic meters",
 				MeteringPointIdentificationNavigation = gasMeteringPoint
