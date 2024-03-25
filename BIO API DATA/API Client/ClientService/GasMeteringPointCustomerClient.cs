@@ -1,10 +1,10 @@
 ﻿using BIO_API_DATA.Model;
 using BIO_API_DATA.Model.GasMeterpointToCustomerModel;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using RestSharp;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +21,7 @@ namespace BIO_API_DATA.API_Client
 		private readonly string _baseUrl;
 		private readonly IRestClient _restClient;
 		public readonly IGasMeteringPointCustomerClientList _customerGas;
-		public GasMeteringPointCustomerClient(IConfiguration configuration, ILogger logger, IRestClient iRestClient, IGasMeteringPointCustomerClientList customersClient)
+		public GasMeteringPointCustomerClient(IConfiguration configuration, ILogger<GasMeteringPointCustomerClient> logger, IRestClient iRestClient, IGasMeteringPointCustomerClientList customersClient)
 		{
 			_baseUrl = configuration.GetValue<string>("ApiSettings:GasMeteringPointCustomerClient");
 			_logger = logger;
