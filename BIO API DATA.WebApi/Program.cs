@@ -68,6 +68,8 @@ var jobSchedule = $"0 0 */{jobScheduleHours} * *";
 RecurringJob.AddOrUpdate<TopLevelCustomerController>("ImportTopCustomerJob",
        controller => controller.ImportTopCustomerJob(), jobSchedule);
 
+RecurringJob.Trigger("ImportTopCustomerJob");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
