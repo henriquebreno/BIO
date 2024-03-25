@@ -19,7 +19,7 @@ namespace UnitTests
 
         private Mock<IRestClient> _restClient;
         private readonly string BaseUrl = "https://bioapi";
-        private Mock<ILogger> _ILogger;
+        private Mock<ILogger<TopLevelCustomersClientList>> _ILogger;
         private Mock<IRestClientFactory> _RestClientFactory;
         private IConfiguration configuration;
 
@@ -28,7 +28,7 @@ namespace UnitTests
         {
             _RestClientFactory = new Mock<IRestClientFactory>();
             _restClient = new Mock<IRestClient>();
-            _ILogger = new Mock<ILogger>();
+            _ILogger = new Mock<ILogger<TopLevelCustomersClientList>>();
 			
             var inMemorySettings = new Dictionary<string, string> {
 			{"APITESTKEY", "test"}};
@@ -67,7 +67,7 @@ namespace UnitTests
 
 
 
-            var client = new TopLevelCustomersClientList(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
+            var client = new TopLevelCustomersClientList(configuration, _ILogger.Object, _restClient.Object);
 
             //Act
             
@@ -131,7 +131,7 @@ namespace UnitTests
 
 
 
-            var client = new TopLevelCustomersClientList(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
+            var client = new TopLevelCustomersClientList(configuration, _ILogger.Object, _restClient.Object);
 
 			//Act
 			
@@ -153,7 +153,7 @@ namespace UnitTests
             _restClient.Setup(s => s.ExecuteAsync(It.IsAny<RestRequest>(), It.IsAny<CancellationToken>()))
                         .ReturnsAsync(new RestResponse { IsSuccessStatusCode = false, StatusDescription = "Internal Server Error" });
 
-            var client = new TopLevelCustomersClientList(configuration, _ILogger.Object, _RestClientFactory.Object, _restClient.Object);
+            var client = new TopLevelCustomersClientList(configuration, _ILogger.Object, _restClient.Object);
 
 			//Act
             // Assert
